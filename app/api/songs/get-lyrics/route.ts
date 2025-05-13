@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import Genius from "genius-lyrics";
-import { connectToDatabase } from "@/db/db-connect";
-import { Song } from "@/models/song.model";
 
 const Client = new Genius.Client();
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
     try {
-        const { title, artist } = await request.json();
+        const { searchParams } = new URL(request.url);
+        const title = searchParams.get("title");
+        const artist = searchParams.get("artist");
 
         if (!title?.trim()) {
             return NextResponse.json(
@@ -15,8 +15,6 @@ export async function POST(request: NextRequest) {
                 { status: 400 }
             );
         }
-
-        await connectToDatabase();
 
         const searchQuery = artist
             ? `${title.trim()} ${artist.trim()}`
@@ -33,40 +31,18 @@ export async function POST(request: NextRequest) {
         const song = searches[0];
         const lyrics = await song.lyrics();
 
-        const existingSong = await Song.findOne({
-            title: song.title,
-            artist: song.artist.name || "Unknown",
-        });
-
-        if (existingSong) {
-            return NextResponse.json({
-                status: "success",
-                message: "Song retrieved from database",
-                data: {
-                    song: existingSong,
-                },
-            });
-        }
-
-        const newSong = await Song.create({
-            title: song.title,
-            artist: song.artist.name || "Unknown",
-            image: song.thumbnail,
-            originalLyrics: lyrics,
-            translatedLyrics: "",
-            vocabulary: [],
-            practiceSentences: [],
-        });
-
         return NextResponse.json({
             status: "success",
-            message: "New song fetched and saved",
+            message: "Lyrics fetched successfully",
             data: {
-                song: newSong,
+                title: song.title,
+                artist: song.artist.name || "Unknown",
+                image: song.thumbnail,
+                originalLyrics: lyrics,
             },
         });
     } catch (error: any) {
-        console.error("Error in get-lyrics:", error);
+        console.error("Error in api/songs/get-lyrics:", error);
         return NextResponse.json(
             {
                 status: "error",
