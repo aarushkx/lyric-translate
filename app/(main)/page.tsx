@@ -2,13 +2,26 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Loader2, Search, Languages } from "lucide-react";
+import { Loader2, Search, Languages, BookOpen } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import Link from "next/link";
 
 interface ICurrentSong {
     title: string;
     artist: string;
     lyrics: string;
     image?: string;
+}
+
+interface IMaterials {
+    vocabulary: {
+        word: string;
+        meaning: string;
+    }[];
+    exampleSentences: {
+        sentence: string;
+        meaning: string;
+    }[];
 }
 
 const Home = () => {
@@ -23,6 +36,8 @@ const Home = () => {
     );
     const [currentSong, setCurrentSong] = useState<ICurrentSong | null>(null);
     const [translation, setTranslation] = useState<string>("");
+    const [learningMaterials, setLearningMaterials] =
+        useState<IMaterials | null>(null);
     const [canTranslate, setCanTranslate] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string>("");
@@ -37,6 +52,7 @@ const Home = () => {
                 )}&artist=${encodeURIComponent(artist)}`
             );
             const data = await res.json();
+            console.log(data);
 
             if (res.ok) {
                 setCurrentSong({
@@ -46,6 +62,7 @@ const Home = () => {
                     image: data.data.image,
                 });
                 setTranslation("");
+                setLearningMaterials(null);
                 setCanTranslate(true);
             } else {
                 setError(
@@ -63,13 +80,13 @@ const Home = () => {
         }
     };
 
-    const handleTranslate = async () => {
+    const handleTranslateAndGenerate = async () => {
         if (!currentSong || !canTranslate) return;
 
         setLoading(true);
         setError("");
         try {
-            const res = await fetch("/api/songs/translate", {
+            const translateRes = await fetch("/api/songs/translate", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -82,19 +99,41 @@ const Home = () => {
                 }),
             });
 
-            const data = await res.json();
-            console.log(data);
-
-            if (res.ok) {
-                setTranslation(data.data.song.translatedLyrics);
-                setCanTranslate(false);
-            } else {
-                setError(
-                    data.error?.message || data.error || "Failed to translate"
+            const translateData = await translateRes.json();
+            if (!translateRes.ok) {
+                throw new Error(
+                    translateData.error?.message ||
+                        translateData.error ||
+                        "Failed to translate"
                 );
             }
+
+            setTranslation(translateData.data.song.translatedLyrics);
+            setCanTranslate(false);
+
+            const materialsRes = await fetch("/api/songs/generate-materials", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    title: currentSong.title,
+                    artist: currentSong.artist,
+                }),
+            });
+
+            const materialsData = await materialsRes.json();
+            if (!materialsRes.ok) {
+                throw new Error(
+                    materialsData.error ||
+                        "Failed to generate learning materials"
+                );
+            }
+
+            setLearningMaterials({
+                vocabulary: materialsData.data.vocabulary,
+                exampleSentences: materialsData.data.exampleSentences,
+            });
         } catch (error: any) {
-            setError("Translation failed. Please try again.");
+            setError(error.message || "An error occurred. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -177,7 +216,7 @@ const Home = () => {
                             <button
                                 type="submit"
                                 disabled={loading || !songTitle.trim()}
-                                className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
                             >
                                 {loading ? (
                                     <>
@@ -194,19 +233,38 @@ const Home = () => {
 
                             <button
                                 type="button"
-                                onClick={handleTranslate}
+                                onClick={handleTranslateAndGenerate}
                                 disabled={loading || !canTranslate}
-                                className={`flex-1 bg-emerald-600 text-white font-medium py-3 px-6 rounded-lg transition flex items-center justify-center gap-2 ${
+                                className={`flex-1 bg-gradient-to-r from-emerald-600 to-purple-600 text-white font-medium py-3 px-6 rounded-lg transition flex items-center justify-center gap-2 cursor-pointer ${
                                     !canTranslate
                                         ? "opacity-50 cursor-not-allowed"
-                                        : "hover:bg-emerald-700"
+                                        : "hover:from-emerald-700 hover:to-purple-700"
                                 }`}
                             >
-                                <Languages className="h-5 w-5" />
-                                Translate Lyrics
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="h-5 w-5 animate-spin" />
+                                        Processing...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Languages className="h-5 w-5" />
+                                        Translate & Learn
+                                    </>
+                                )}
                             </button>
                         </div>
                     </form>
+
+                    <div className="flex justify-center mt-6">
+                        <Link
+                            href="/songs"
+                            className="flex items-center px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer"
+                        >
+                            <BookOpen className="h-5 w-5 mr-2" />
+                            Browse Song Library
+                        </Link>
+                    </div>
 
                     {error && (
                         <div
@@ -246,11 +304,67 @@ const Home = () => {
                                 </div>
                                 <div className="p-6">
                                     <pre className="whitespace-pre-wrap font-sans text-gray-800 max-h-[500px] overflow-y-auto">
-                                        {translation}
+                                        <ReactMarkdown>
+                                            {translation}
+                                        </ReactMarkdown>
                                     </pre>
                                 </div>
                             </div>
                         )}
+                    </div>
+                )}
+
+                {learningMaterials && (
+                    <div className="mt-8 space-y-6">
+                        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                            <div className="bg-purple-600 px-6 py-3">
+                                <h2 className="text-lg font-semibold text-white">
+                                    Vocabulary
+                                </h2>
+                            </div>
+                            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {learningMaterials.vocabulary.map(
+                                    (item, index) => (
+                                        <div
+                                            key={index}
+                                            className="border-b pb-2"
+                                        >
+                                            <p className="font-medium text-purple-800">
+                                                {item.word}
+                                            </p>
+                                            <p className="text-gray-600">
+                                                {item.meaning}
+                                            </p>
+                                        </div>
+                                    )
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                            <div className="bg-amber-600 px-6 py-3">
+                                <h2 className="text-lg font-semibold text-white">
+                                    Example Sentences
+                                </h2>
+                            </div>
+                            <div className="p-6 space-y-4">
+                                {learningMaterials.exampleSentences.map(
+                                    (item, index) => (
+                                        <div
+                                            key={index}
+                                            className="border-b pb-4"
+                                        >
+                                            <p className="font-medium text-amber-800">
+                                                {item.sentence}
+                                            </p>
+                                            <p className="text-gray-600">
+                                                {item.meaning}
+                                            </p>
+                                        </div>
+                                    )
+                                )}
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>

@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
             },
         });
     } catch (error: any) {
-        console.error("Error in api/songs/translate:", error);
+        console.error("Error in /api/songs/translate:", error);
         return NextResponse.json(
             {
                 error:

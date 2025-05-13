@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
             },
         });
     } catch (error: any) {
-        console.error("Error in api/songs/get-lyrics:", error);
+        console.error("Error in /api/songs/get-lyrics:", error);
         return NextResponse.json(
             {
                 status: "error",
