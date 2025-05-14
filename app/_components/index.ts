@@ -6,6 +6,7 @@ import OriginalLyrics from "./content/OriginalLyrics";
 import TranslatedLyrics from "./content/TranslatedLyrics";
 import Vocabulary from "./content/Vocabulary";
 import ExampleSentences from "./content/ExampleSentences";
+import HomeContent from "./home/HomeContent";
 
 export {
     Navbar,
@@ -16,4 +17,5 @@ export {
     TranslatedLyrics,
     Vocabulary,
     ExampleSentences,
+    HomeContent,
 };
