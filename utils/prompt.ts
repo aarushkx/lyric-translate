@@ -4,9 +4,15 @@ export const TRANSLATE_LYRICS_PROMPT = (
 ) => `
 Translate the following song lyrics into ${targetLanguage} following these rules:
 
-1. Format each line exactly like this:
-   **Original lyrics**
-   Translated lyrics
+1. Format each line exactly like this, and **bold** both the original lyrics:
+   **Original lyrics**<br />Translated lyrics<br />
+
+   - Use double asterisks (**) to bold the original lyrics
+   - Use *italics* for the romanized version (if applicable)
+   - Use <br /> at the end of each line, including:
+     - After the original lyrics
+     - After the romanized line (if any)
+     - After the translated line
 
 2. Preservation Guidelines:
    - Maintain the original meaning and emotional tone
@@ -18,69 +24,78 @@ Translate the following song lyrics into ${targetLanguage} following these rules
    - For untranslatable wordplay, keep original and add [approx: translation]
    - For cultural references, keep original and add [cultural note]
    - If the original language is not written in the Latin (English) alphabet, include a romanized version under the original line like this:
-   **Original lyrics**
-   *Romanized version*
-   Translated lyrics
+
+   **Original lyrics**<br />*Romanized version*<br />Translated lyrics<br />
+   
    - Never add extra explanations unless marked in brackets
 
 Example Output:
-**Siempre hay alguien como tú**
-There's always someone like you
+**Siempre hay alguien como tú**<br />There's always someone like you<br />
 
-**मैं हूँ यहीं पर**
-**Main hoon yahin par**
-I am right here
+**मैं हूँ यहीं पर**<br />*Main hoon yahin par*<br />I am right here<br />
 
 Now translate these lyrics:
 ${lyrics}
 
 Important:
+- The response **must use valid Markdown syntax** so bold and line breaks are rendered correctly
+- Every original lyric, romanized version (if any), and translated line must end with an additional like <br /><br />
 - Only return the formatted translation pairs
 - Don't include any additional commentary
 - Don't include any metadata, contributor info, descriptions, or extra lines that appear before the actual lyrics begin
-- Maintain all original line breaks
-- Keep section headers like [Verse 1] unchanged
+- Preserve all original line breaks and section headers (e.g., [Verse 1])
 `;
 
 export const GENERATE_VOCAB_AND_SENTENCES_PROMPT = (
     translatedLyrics: string
 ) => `
-Given these bilingual song lyrics in format:
-**Original Language Phrase**
-**Romanized version as well if non-Latin alphabet is used**
-Translation
+Given these bilingual song lyrics in the format:
+
+**Original Phrase**  
+*Romanized version (if applicable)*  
+Translation (plain text)
 
 ${translatedLyrics}
 
-Generate:
-1. 10 important vocabulary words from the song with their translations
-2. 10 example sentences that:
-   - Use similar grammatical structures as the original lyrics
-   - Contain different vocabulary/context
-   - Maintain the same language complexity
-   - Are natural and grammatically correct
+Your task:
 
-Return as JSON with this exact structure:
+1. Extract 10 useful vocabulary words from the song and provide their translations.
+   - Use **bold** for original words.
+   - Use *italics* for romanized versions (if the script is non-Latin).
+   - Provide a plain translation.
+   - Focus on commonly useful verbs, nouns, adjectives, or set phrases.
+   - Avoid names, pronouns, or very rare words.
+
+2. Write 10 original, natural, and useful example sentences that:
+   - Use some of the extracted vocabulary or reflect grammar structures found in the song.
+   - Are NOT poetic, rhyming, or stylized — they must sound like normal everyday language.
+   - Preserve the grammatical complexity of the song (e.g., tense, sentence construction).
+   - Are accurate, clear, and helpful for a beginner/intermediate learner.
+   - Follow this format:
+     - **Original Sentence**
+     - *Romanized version (if needed)*
+     - Translation
+
+Return your response in this valid JSON format:
 {
   "vocabulary": [
     {
-      "word": "original word (romanized as well if non-Latin alphabet)",
+      "word": "**original word** (*romanized form if needed*)",
       "meaning": "translation"
     }
   ],
   "exampleSentences": [
     {
-      "sentence": "sentence using similar structure (romanized as well if non-Latin alphabet)",
+      "sentence": "**original sentence**<br />*romanized (if needed)*",
       "meaning": "translation"
     }
   ]
 }
 
-Guidelines:
-- Select vocabulary that's useful for language learners
-- Example sentences should demonstrate the grammar patterns from the song
-- Keep the same tense, mood, and grammatical constructions
-- Ensure all translations are accurate
-- Do not copy exact phrases from the song
-- If original lyrics are in a non-Latin script, use their romanized form in vocabulary too
+Important Guidelines:
+- Do NOT copy or paraphrase lines from the song.
+- Do NOT make sentences rhyme or sound poetic.
+- Ensure each sentence is practical and grammatically sound.
+- Use romanized forms *only if* the language is in a non-Latin script.
+- Think like a language tutor helping learners understand how to use grammar and vocabulary in real life.
 `;
