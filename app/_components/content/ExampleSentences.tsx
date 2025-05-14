@@ -21,10 +21,9 @@ const ExampleSentences = ({ exampleSentences }: ExampleSentencesProps) => {
                 {exampleSentences.map((item, index) => (
                     <div key={index} className="py-3 first:pt-0 last:pb-0">
                         <div className="font-medium text-card-foreground">
-                            <ReactMarkdown
-                                children={item.sentence}
-                                rehypePlugins={[rehypeRaw]}
-                            />
+                            <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                                {item.sentence}
+                            </ReactMarkdown>
                         </div>
                         <p className="text-sm text-muted-foreground mt-1">
                             {item.meaning}

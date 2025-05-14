@@ -30,7 +30,7 @@ export async function GET(
             status: "success",
             data: song,
         });
-    } catch (error) {
+    } catch (_error: any) {
         return NextResponse.json(
             { error: "Failed to fetch song" },
             { status: 500 }

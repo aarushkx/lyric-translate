@@ -18,10 +18,9 @@ const TranslatedLyrics = ({ translation }: TranslatedLyricsProps) => {
             </div>
             <div className="p-4 text-sm bg-card/50 overflow-auto h-96">
                 <div className="text-card-foreground">
-                    <ReactMarkdown
-                        children={translation}
-                        rehypePlugins={[rehypeRaw]}
-                    />
+                    <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                        {translation}
+                    </ReactMarkdown>
                 </div>
             </div>
         </div>

@@ -67,7 +67,7 @@ const HomePage = () => {
                 );
                 setCanTranslate(false);
             }
-        } catch (error: any) {
+        } catch (_error: any) {
             setError("Failed to fetch lyrics. Please try again.");
             setCanTranslate(false);
         } finally {
@@ -128,7 +128,7 @@ const HomePage = () => {
             setArtistName(artist);
             searchLyrics(title, artist);
         }
-    }, []);
+    }, [searchParams]);
 
     return (
         <div className="flex flex-col bg-background text-foreground">
