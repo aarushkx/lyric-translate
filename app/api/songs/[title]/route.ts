@@ -4,22 +4,15 @@ import { Song } from "@/models/song.model";
 
 export async function GET(
     _request: NextRequest,
-    context: { params: { title: string } }
+    { params }: { params: Promise<{ title: string }> }
 ) {
+    const { title } = await params;
+
     try {
         await connectToDatabase();
 
-        const { params } = context;
-
-        if (!params?.title) {
-            return NextResponse.json(
-                { error: "Song title is required" },
-                { status: 400 }
-            );
-        }
-
-        const title = decodeURIComponent(params.title);
-        const song = await Song.findOne({ title });
+        const decodedTitle = decodeURIComponent(title);
+        const song = await Song.findOne({ title: decodedTitle });
 
         if (!song) {
             return NextResponse.json(
