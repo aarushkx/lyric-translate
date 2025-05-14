@@ -7,7 +7,7 @@ import { HomeContent } from "@/app/_components/index";
 const HomePage = () => {
     return (
         <div className="flex flex-col bg-background text-foreground">
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<></>}>
                 <HomeContent />
             </Suspense>
         </div>

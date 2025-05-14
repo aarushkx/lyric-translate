@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Client } from "genius-lyrics";
 
-const genius = new Client();
+const genius = new Client(process.env.GENIUS_ACCESS_TOKEN);
 
 export async function GET(request: NextRequest) {
     try {
