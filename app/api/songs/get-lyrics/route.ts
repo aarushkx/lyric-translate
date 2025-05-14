@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import Genius from "genius-lyrics";
+import { Client } from "genius-lyrics";
 
-const Client = new Genius.Client();
+const genius = new Client();
 
 export async function GET(request: NextRequest) {
     try {
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
         const searchQuery = artist
             ? `${title.trim()} ${artist.trim()}`
             : title.trim();
-        const searches = await Client.songs.search(searchQuery);
+        const searches = await genius.songs.search(searchQuery); // ✅ Fix here
 
         if (!searches.length) {
             return NextResponse.json(
