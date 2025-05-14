@@ -3,11 +3,13 @@ import { connectToDatabase } from "@/db/db-connect";
 import { Song } from "@/models/song.model";
 
 export async function GET(
-    _: NextRequest,
-    { params }: { params: { title: string } }
+    _request: NextRequest,
+    context: { params: { title: string } }
 ) {
     try {
         await connectToDatabase();
+
+        const { params } = context;
 
         if (!params?.title) {
             return NextResponse.json(
