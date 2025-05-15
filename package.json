@@ -15,6 +15,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "genius-lyrics": "^4.4.7",
+    "genius-lyrics-api": "^3.2.1",
     "lucide-react": "^0.509.0",
     "lyric-translate": "file:",
     "mongoose": "^8.14.2",

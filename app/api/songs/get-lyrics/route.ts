@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Client } from "genius-lyrics";
-
-const genius = new Client(process.env.GENIUS_ACCESS_TOKEN);
+import { getSong } from "genius-lyrics-api";
 
 export async function GET(request: NextRequest) {
     try {
@@ -9,36 +7,37 @@ export async function GET(request: NextRequest) {
         const title = searchParams.get("title");
         const artist = searchParams.get("artist");
 
-        if (!title?.trim()) {
+        if (!title?.trim() || !artist?.trim()) {
             return NextResponse.json(
-                { error: "Song title is required" },
+                { error: "Song title and artist are required" },
                 { status: 400 }
             );
         }
 
-        const searchQuery = artist
-            ? `${title.trim()} ${artist.trim()}`
-            : title.trim();
-        const searches = await genius.songs.search(searchQuery); // ✅ Fix here
+        const options = {
+            apiKey: process.env.GENIUS_ACCESS_TOKEN!,
+            title: title.trim(),
+            artist: artist.trim() || "Unknown",
+            optimizeQuery: true,
+        };
 
-        if (!searches.length) {
+        const song = await getSong(options);
+
+        if (!song || !song.lyrics) {
             return NextResponse.json(
-                { error: "No songs found matching your criteria" },
+                { error: "No lyrics found for the given song." },
                 { status: 404 }
             );
         }
-
-        const song = searches[0];
-        const lyrics = await song.lyrics();
 
         return NextResponse.json({
             status: "success",
             message: "Lyrics fetched successfully",
             data: {
                 title: song.title,
-                artist: song.artist.name || "Unknown",
-                image: song.thumbnail,
-                originalLyrics: lyrics,
+                artist: options.artist || "Unknown",
+                image: song.albumArt || null,
+                originalLyrics: song.lyrics,
             },
         });
     } catch (error: any) {
