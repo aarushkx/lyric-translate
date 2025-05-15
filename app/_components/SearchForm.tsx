@@ -68,7 +68,7 @@ const SearchForm = ({
                             htmlFor="artist"
                             className="block text-sm font-medium text-card-foreground"
                         >
-                            Artist <span className="text-destructive">*</span>
+                            Artist
                         </label>
                         <input
                             id="artist"
@@ -76,7 +76,6 @@ const SearchForm = ({
                             value={artistName}
                             onChange={(e) => setArtistName(e.target.value)}
                             placeholder="e.g. Luis Fonsi"
-                            required
                             className="w-full px-3 py-2 bg-background border border-input rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                         />
                     </div>

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSong } from "genius-lyrics-api";
+import { Client } from "genius-lyrics";
+
+const genius = new Client(process.env.GENIUS_ACCESS_TOKEN);
 
 export async function GET(request: NextRequest) {
     try {
@@ -7,37 +9,36 @@ export async function GET(request: NextRequest) {
         const title = searchParams.get("title");
         const artist = searchParams.get("artist");
 
-        if (!title?.trim() || !artist?.trim()) {
+        if (!title?.trim()) {
             return NextResponse.json(
-                { error: "Song title and artist are required" },
+                { error: "Song title is required" },
                 { status: 400 }
             );
         }
 
-        const options = {
-            apiKey: process.env.GENIUS_ACCESS_TOKEN!,
-            title: title.trim(),
-            artist: artist.trim() || "Unknown",
-            optimizeQuery: true,
-        };
+        const searchQuery = artist
+            ? `${title.trim()} ${artist.trim()}`
+            : title.trim();
+        const searches = await genius.songs.search(searchQuery); // ✅ Fix here
 
-        const song = await getSong(options);
-
-        if (!song || !song.lyrics) {
+        if (!searches.length) {
             return NextResponse.json(
-                { error: "No lyrics found for the given song." },
+                { error: "No songs found matching your criteria" },
                 { status: 404 }
             );
         }
+
+        const song = searches[0];
+        const lyrics = await song.lyrics();
 
         return NextResponse.json({
             status: "success",
             message: "Lyrics fetched successfully",
             data: {
                 title: song.title,
-                artist: options.artist || "Unknown",
-                image: song.albumArt || null,
-                originalLyrics: song.lyrics,
+                artist: song.artist.name || "Unknown",
+                image: song.thumbnail,
+                originalLyrics: lyrics,
             },
         });
     } catch (error: any) {
