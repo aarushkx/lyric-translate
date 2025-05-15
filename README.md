@@ -1,6 +1,6 @@
 ## 🎵 LyricTranslate
 
-## 📝 Overiview
+## 📝 Overview
 
 A language-learning web app that helps users learn a foreign language through song lyrics. Upload or explore songs with bilingual lyrics, and get auto-generated vocabulary and example sentences powered by AI.
 
@@ -13,8 +13,8 @@ A language-learning web app that helps users learn a foreign language through so
 
 ## 🔍 Preview
 
-![LyricTranslate](https://user-images.githubusercontent.com/108481/26860092-0d7f8b1f-5a5c-11e7-9d3c-4a3f9f6a4a8d.gif)
+<img src="/public/preview/image_1.png" alt="Preview 1" width="200" /> <img src="/public/preview/image_2.png" alt="Preview 2" width="200" /> <img src="/public/preview/image_3.png" alt="Preview 3" width="200" /> <img src="/public/preview/image_4.png" alt="Preview 4" width="200" />
 
 ## 🌐 View Live
 
-[http://localhost:3000/](http://localhost:3000/)
+[https://lyric-translate.netlify.app/](https://lyric-translate.netlify.app/)
