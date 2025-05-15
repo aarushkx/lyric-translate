@@ -1,8 +1,6 @@
-## 🎵 LyricTranslate
+# 🎵 LyricTranslate
 
-## 📝 Overview
-
-A language-learning web app that helps users learn a foreign language through song lyrics. Upload or explore songs with bilingual lyrics, and get auto-generated vocabulary and example sentences powered by AI.
+LyricTranslate is a language-learning web app that helps you immerse yourself in a foreign language through the lyrics of real songs. Explore your favorite songs with bilingual, line-by-line lyrics, and get AI-powered vocabulary explanations, translations, and contextual example sentences.
 
 ## ✨ Features
 
